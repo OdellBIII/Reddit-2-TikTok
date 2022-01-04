@@ -1,0 +1,25 @@
+{
+  "name": "reddit-2-tiktok",
+  "version": "1.0.0",
+  "description": "A webserver for serving the most popular post from a subreddit and posting TikTok videos",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OdellBIII/Reddit-2-TikTok.git"
+  },
+  "author": "Odell Blackmon III",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/OdellBIII/Reddit-2-TikTok/issues"
+  },
+  "homepage": "https://github.com/OdellBIII/Reddit-2-TikTok#readme",
+  "devDependencies": {
+    "typescript": "^4.5.4"
+  },
+  "dependencies": {
+    "express": "^4.17.2"
+  }
+}
