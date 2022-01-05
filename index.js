@@ -1,11 +1,17 @@
 // Imports necessary for web server
-const express = require('express');
+import express from 'express';
 const app = express();
-const port = 3000;
+const port = process.env.port || 3000;
+import bodyParser from 'body-parser';
+
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
 
 // Imports necessary for database interactions
-const {MongoClient} = require('mongodb');
+import {MongoClient} from 'mongodb';
 
+// Used for calling Reddit API
+import fetch from 'node-fetch';
 // Testing whether MongoDB works
 
 async function listDatabases(client){
@@ -29,9 +35,29 @@ async function main(){
   }
 }
 
+// Dummy endpoint that we can modify later
 app.get('/', (req, res) => {
 
   res.send("Hello World!");
+});
+
+// Basic endpoint for getting the most popular post from a subreddit with Title and Body text
+app.get('/subreddit/:subredditName', (req, res) => {
+
+  fetch(`https://www.reddit.com/r/${req.params.subredditName}/hot.json`)
+  .then(result => result.json())
+  .then(data => data['data']['children'][2])
+  .then(postObject => {
+    const postResponse = {
+      title : postObject['data']['title'],
+      body : postObject['data']['selftext_html'],
+      url: postObject['data']['url']
+    }
+
+    console.log(postResponse);
+    res.send(postResponse);
+  })
+  .catch(error => console.error(error));
 });
 
 app.listen(port, () => {
@@ -39,4 +65,4 @@ app.listen(port, () => {
   console.log(`Reddit-2-Tiktok listening at http://localhost:${port}`);
 });
 
-main().catch(console.error);
+//main().catch(console.error);
