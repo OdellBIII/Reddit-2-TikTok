@@ -304,31 +304,42 @@ def upload_to_tiktok(tiktok_video_file):
     driver.get("https://www.tiktok.com/upload?lang=en")
 
     # Get cookies and update them
-
     new_cookies = driver.get_cookies()
     print(new_cookies)
 
+    # Click upload button and upload video
+    select_file_button = driver.find_element(By.XPATH, "//input[@name='upload-btn']")
+    select_file_button.send_keys("/Users/odellblackmoniii/Projects/Reddit2TikTok/Reddit-2-TikTok/{}".format(tiktok_video_file))
+    time.sleep(10)
 
-    # Click email sign in button
-    email_signin_button = driver.find_element(By.XPATH, "//div[text()[contains(., 'Use phone / email / username')]]")
-    email_signin_button.click()
-    time.sleep(3)
+    # Add a caption (Probably the same one for each video)
+    # Click post button and post
+    post_button = driver.find_element(By.XPATH, "//button[text()[contains(., 'Post')]]")
+    post_button.click()
 
-    # Switch to email sign in
 
-    switch_to_email_button = driver.find_element(By.XPATH, "//a[text()[contains(., 'Log in with email or username')]]")
-    switch_to_email_button.click()
-    time.sleep(3)
 
-    # Fill in information
-    email_input = driver.find_element(By.XPATH, "//input[@placeholder='Email or Username']")
-    password_input = driver.find_element(By.XPATH, "//input[@placeholder='Password']")
-    login_button = driver.find_element(By.XPATH, "//button[text()[contains(., 'Log in')]]")
+    if False:
+        # Click email sign in button
+        email_signin_button = driver.find_element(By.XPATH, "//div[text()[contains(., 'Use phone / email / username')]]")
+        email_signin_button.click()
+        time.sleep(3)
 
-    email_input.send_keys("reddit.tiktokaita@gmail.com")
-    password_input.send_keys("reddittiktokaita1!")
-    time.sleep(3)
-    login_button.click()
+        # Switch to email sign in
+
+        switch_to_email_button = driver.find_element(By.XPATH, "//a[text()[contains(., 'Log in with email or username')]]")
+        switch_to_email_button.click()
+        time.sleep(3)
+
+        # Fill in information
+        email_input = driver.find_element(By.XPATH, "//input[@placeholder='Email or Username']")
+        password_input = driver.find_element(By.XPATH, "//input[@placeholder='Password']")
+        login_button = driver.find_element(By.XPATH, "//button[text()[contains(., 'Log in')]]")
+
+        email_input.send_keys("reddit.tiktokaita@gmail.com")
+        password_input.send_keys("reddittiktokaita1!")
+        time.sleep(3)
+        login_button.click()
 
 
     # Upload
