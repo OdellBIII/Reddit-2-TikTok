@@ -307,15 +307,26 @@ def upload_to_tiktok(tiktok_video_file):
     new_cookies = driver.get_cookies()
     print(new_cookies)
 
-    # Click upload button and upload video
-    select_file_button = driver.find_element(By.XPATH, "//input[@name='upload-btn']")
+    time.sleep(3)
+
+    # Switch to iframe
+    driver.switch_to.frame(0)
+    #Select file
+    select_file_button = driver.find_element(By.XPATH, '//div[@id="root"]/div[1]/div[1]/div[1]/div[1]/div[3]/div[2]/div[1]/div[1]/input')
     select_file_button.send_keys("/Users/odellblackmoniii/Projects/Reddit2TikTok/Reddit-2-TikTok/{}".format(tiktok_video_file))
-    time.sleep(10)
+    time.sleep(5)
 
     # Add a caption (Probably the same one for each video)
+    #add_caption_js_script = 'var caption_field = Document.getElementBy'
+    #caption_text = 'Like and follow for more! #aita #reddit #fyp'
+    #caption_field = driver.find_element(By.XPATH, '//span[text()[contains(., "{}")]]'.format(tiktok_video_file[:-4]))
+    #caption_field
+
     # Click post button and post
     post_button = driver.find_element(By.XPATH, "//button[text()[contains(., 'Post')]]")
+    print(post_button)
     post_button.click()
+    print("Clicked post button")
 
 
 
@@ -370,4 +381,4 @@ def main(argv):
 if __name__ == '__main__':
 
     #main(sys.argv[1:])
-    upload_to_tiktok("Nothing")
+    upload_to_tiktok("Like and follow for more! #aita #reddit #fyp.mp4")
