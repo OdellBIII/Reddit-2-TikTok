@@ -80,18 +80,18 @@ Returns a voice over audio file of the post
 """
 def generate_audio_files(processed_post):
 
+    voiceover_audio_file_name = "temporary_audio.mp3"
     engine = pyttsx3.init()
     daniel_voice_id = "com.apple.speech.synthesis.voice.daniel"
     engine.setProperty('voice', daniel_voice_id)
-    engine.save_to_file("{}. {}".format(processed_post['title'], processed_post['body']), "temporary_audio.mp3")
+    engine.save_to_file("{}. {}".format(processed_post['title'], processed_post['body']), voiceover_audio_file_name)
     engine.runAndWait()
 
-    return "temporary_audio.mp3"
+    return voiceover_audio_file_name
 
 """
-Returns a screenshot of the reddit post
+Retruns the standard selenium driver that is used throughout the script
 """
-
 def get_selenium_driver():
 
     # Setup Selenium Driver
@@ -101,8 +101,12 @@ def get_selenium_driver():
 
     return driver
 
+"""
+Returns a screenshot of the reddit post
+"""
 def get_screenshot(processed_post):
 
+    screenshot_file_name = "temporary_post_screenshot.png"
     # Setup Selenium Driver
     driver = get_selenium_driver()
 
@@ -113,26 +117,27 @@ def get_screenshot(processed_post):
     post_element_rect = driver.find_element(By.XPATH, "//div[starts-with(@class, '_1oQyIsiPHYt6nx7VOmd1sz _2rszc84L136gWQrkwH6IaM  Post')]").rect
 
     # Take Screenshot
-    driver.save_screenshot("temporary_post_screenshot.png")
+    driver.save_screenshot(screenshot_file_name)
 
     # Crop Image and save
-    image = Image.open("temporary_post_screenshot.png")
+    image = Image.open(screenshot_file_name)
     cropped_image = image.crop((post_element_rect['x'],
         post_element_rect['y'],
         post_element_rect['x'] + post_element_rect['width'],
         post_element_rect['y'] + post_element_rect['height']))
 
-    cropped_image.save("temporary_post_screenshot.png")
+    cropped_image.save(screenshot_file_name)
 
     driver.close()
 
-    return "temporary_post_screenshot.png"
+    return screenshot_file_name
 
 """
+Returns the screenshot with a blank background
 """
-
 def generate_tiktok_image(screenshot_file):
 
+    screenshot_file_name = "temporary_post_screenshot.png"
     screenshot_image = Image.open(screenshot_file)
     tiktok_image = Image.open("tiktok-template.png").copy()
 
@@ -141,27 +146,31 @@ def generate_tiktok_image(screenshot_file):
 
     tiktok_image.paste(screenshot_image, coordinates)
 
-    tiktok_image.save("temporary_post_screenshot.png")
+    tiktok_image.save(screenshot_file_name)
 
-    return "temporary_post_screenshot.png"
+    return screenshot_file_name
 
 """
+Returns a video with the screenshot being displayed and voiceover playing as the audio
 """
-
 def generate_tiktok_video(tiktok_image, voiceover_audio_file):
 
+    # The video name is the same as the caption because tiktok automatically makes the caption
+    # the file's name and I could not figure out a way to programmatically change the caption
+    # with Selenium. Might do it later
+    video_name = "Like and follow for more! #aita #reddit #fyp.mp4"
     image_clip = ImageClip(tiktok_image)
     audio_clip = AudioFileClip(voiceover_audio_file)
 
     image_clip_with_audio = image_clip.set_audio(audio_clip)
 
-    image_clip_with_audio.set_duration(audio_clip.duration).write_videofile("tiktok-video.mp4", fps=24, audio=True)
+    image_clip_with_audio.set_duration(audio_clip.duration).write_videofile(video_name, fps=24, audio=True)
 
-    return "tiktok-video.mp4"
+    return video_name
 
 """
+Uploads the video to TikTok
 """
-
 def upload_to_tiktok(tiktok_video_file):
 
 
@@ -299,11 +308,13 @@ def upload_to_tiktok(tiktok_video_file):
     # Navigate to TikTok page from Selenium
     driver = get_selenium_driver()
     driver.get("https://www.tiktok.com")
+    # Load cookies into browsing session
     for cookie in cookies:
         driver.add_cookie(cookie)
     driver.get("https://www.tiktok.com/upload?lang=en")
 
     # Get cookies and update them
+    # TODO: Save the cookies to a file like pickle
     new_cookies = driver.get_cookies()
     print(new_cookies)
 
@@ -311,49 +322,18 @@ def upload_to_tiktok(tiktok_video_file):
 
     # Switch to iframe
     driver.switch_to.frame(0)
-    #Select file
+
+    #Select file and upload it
     select_file_button = driver.find_element(By.XPATH, '//div[@id="root"]/div[1]/div[1]/div[1]/div[1]/div[3]/div[2]/div[1]/div[1]/input')
     select_file_button.send_keys("/Users/odellblackmoniii/Projects/Reddit2TikTok/Reddit-2-TikTok/{}".format(tiktok_video_file))
     time.sleep(5)
-
-    # Add a caption (Probably the same one for each video)
-    #add_caption_js_script = 'var caption_field = Document.getElementBy'
-    #caption_text = 'Like and follow for more! #aita #reddit #fyp'
-    #caption_field = driver.find_element(By.XPATH, '//span[text()[contains(., "{}")]]'.format(tiktok_video_file[:-4]))
-    #caption_field
 
     # Click post button and post
     post_button = driver.find_element(By.XPATH, "//button[text()[contains(., 'Post')]]")
     print(post_button)
     post_button.click()
-    print("Clicked post button")
 
 
-
-    if False:
-        # Click email sign in button
-        email_signin_button = driver.find_element(By.XPATH, "//div[text()[contains(., 'Use phone / email / username')]]")
-        email_signin_button.click()
-        time.sleep(3)
-
-        # Switch to email sign in
-
-        switch_to_email_button = driver.find_element(By.XPATH, "//a[text()[contains(., 'Log in with email or username')]]")
-        switch_to_email_button.click()
-        time.sleep(3)
-
-        # Fill in information
-        email_input = driver.find_element(By.XPATH, "//input[@placeholder='Email or Username']")
-        password_input = driver.find_element(By.XPATH, "//input[@placeholder='Password']")
-        login_button = driver.find_element(By.XPATH, "//button[text()[contains(., 'Log in')]]")
-
-        email_input.send_keys("reddit.tiktokaita@gmail.com")
-        password_input.send_keys("reddittiktokaita1!")
-        time.sleep(3)
-        login_button.click()
-
-
-    # Upload
 def main(argv):
 
     subreddit = get_commandline_argument(argv)
@@ -380,5 +360,4 @@ def main(argv):
 
 if __name__ == '__main__':
 
-    #main(sys.argv[1:])
-    upload_to_tiktok("Like and follow for more! #aita #reddit #fyp.mp4")
+    main(sys.argv[1:])
