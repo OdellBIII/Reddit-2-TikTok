@@ -9,6 +9,7 @@ from selenium.webdriver.common.by import By
 from PIL import Image
 from moviepy.editor import *
 import time
+import pickle
 
 
 """
@@ -168,143 +169,56 @@ def generate_tiktok_video(tiktok_image, voiceover_audio_file):
 
     return video_name
 
+
+"""
+Returns TikTok cookies
+"""
+
+def get_tiktok_cookies():
+
+    cookies_file_name = "tiktok_cookies.pkl"
+    cookies_file = open(cookies_file_name, 'rb')
+    cookies_list = pickle.load(cookies_file)
+
+    return cookies_list
+
+
+"""
+Remove unnecessary fields from cookies
+"""
+def strip_cookies(cookies):
+
+    stripped_cookies = []
+    for cookie in cookies:
+
+        stripped_cookie = {
+            'name' : cookie['name'],
+            'value' : cookie['value']
+        }
+
+        stripped_cookies.append(stripped_cookie)
+
+    return stripped_cookies
+
+"""
+Save the TikTok cookies locally
+"""
+def save_tiktok_cookies(new_cookies):
+
+    stripped_cookies = strip_cookies(new_cookies)
+    cookies_file_name = "tiktok_cookies.pkl"
+
+    with open(cookies_file_name, 'wb') as cookies_file:
+        pickle.dump(stripped_cookies, cookies_file)
+
 """
 Uploads the video to TikTok
 """
 def upload_to_tiktok(tiktok_video_file):
 
+    # Cookies for signing into TikTok
+    cookies = get_tiktok_cookies()
 
-    # Cookies
-    cookies = [
-        {
-            "name": "ak_bmsc",
-            "value": "65BC6866862DD3B0C3130631E8AA071F~000000000000000000000000000000~YAAQR9jPF/x6dmh9AQAAEfWoNw5gM2v+ZE1OeZwOVm3hFImMEZ1RvQ6QKUiSyCh7UgCxu4rLlBGjr5oImhNcbRRwUJMphuaWAJHxpx9BkkPlWjL8pXa0YSImDH9eKi5B2Rp7wcrGyXAyQpMW1Eq6AmvbTSyc+SEZTc9szCQR/j795EvJytHafzz0u2liBTqoko93cbNrPIvfyGXvGfh5UQgdHtoImiNpRXR8OQohJRhUm1A1wngAkBzot83ycnjcPNH/H/4mA3Yp/zVs/UGIzuozg96aHFnZYOVvPqoNBdsVwemgSMBXNQr+WvdPtm4Y8T4PgqYyNEvGkMqcZ1VSiu7XVGU1ijUPp7i1nnUA9T+4giNuZyaES9dmuhYpRosSqa5Fn3K6eu2L"
-        },
-        {
-            "name": "MONITOR_DEVICE_ID",
-            "value": "ae113eec-346c-4d45-827b-1028b5babd37"
-        },
-        {
-            "name": "tta_attr_id",
-            "value": "0.1641611479.7050667614040752130"
-        },
-        {
-            "name": "_abck",
-            "value": "C50CEC365D78612500C8D0BCD9392A90~-1~YAAQW9jPF1TAMC1+AQAAAfWhNwdVCT6vOXL4qLH57a+tU7EmzuU7aoIZZsZVz+tTEoBtUyZYb+8Sd3+29LXuFZCXuDzsxHIE8rIJzjc5K1I1CFRuWITTjj+Ke1p62kYrbnutNiF4L28y1aWvA0QqBI1JpgsQmmhItcJapAJIq9VN8g9hf6UEOLPhBYV7POhv9+eCkmEMCSZKmRvYizG1gT/0bssfY35plGr5dAyq76iLQhaCxedYrJhT7NZuWB+QZPxtWstBU8HFxFbfACjHB3F+QBsiZ1urgJ/oEY6lRf5P2aBDZW/BGD/S8wFpR6a6Jhp9Ut0Ufh2oGekJ5KQlyWHbaneKgBhyG79k5/n1VlRh9UUSSUmMRBtX3bg/jS2jmNHSUBGcnpHjZA==~-1~-1~-1"
-        },
-        {
-            "name": "csrf_session_id",
-            "value": "eebd7a74c0bf4a75ce381d30bee94614"
-        },
-        {
-            "name": "tt_webid",
-            "value": "7050667540180633094"
-        },
-        {
-            "name": "msToken",
-            "value": "ecVa9qk41b2dDxFmClWULoTSORIh1dY0PfdOXGXWDFyyAf5D0POj1Pj-QMNe03TUbheuvEJ82oXYNkVaWVTUdV6X9IYU8t36OJtwmE_fRO9ChNfoHYs6ppS0LIe_KNSdvlU="
-        },
-        {
-            "name": "MONITOR_WEB_ID",
-            "value": "7050667540180633094"
-        },
-        {
-            "name": "custom_slardar_web_id",
-            "value": "7050667540180633094"
-        },
-        {
-            "name": "sid_guard",
-            "value": "eb81ef9f6042d44fd03a55aa7bbd56b9%7C1641586307%7C5184000%7CTue%2C+08-Mar-2022+20%3A11%3A47+GMT"
-        },
-        {
-            "name": "ttwid",
-            "value": "1%7C-TilBAtzY2VZHin8b4eA3xgtzynvxW6wyX0B5APNUq0%7C1641611438%7C24d044f4964ca4933b2e6fce771fe0e2b57f4ff3a844c07401728abf6e97dcfb"
-        },
-        {
-            "name": "uid_tt",
-            "value": "7718c854a467430e1e648b289347c363b20b476f7a1439304db9abff6886724d"
-        },
-        {
-            "name": "passport_csrf_token_default",
-            "value": "4e0ab0cf9b6a001eec642bf100713034"
-        },
-        {
-            "name": "s_v_web_id",
-            "value": "verify_kv76655m_Bws1dOT7_rToQ_4A3f_BvhU_zi49F3DWE843"
-        },
-        {
-            "name": "store-idc",
-            "value": "maliva"
-        },
-        {
-            "name": "ssid_ucp_v1",
-            "value": "1.0.0-KGQ2OTNlMDRlYmZlODg4YWJmMDcxOTdhMjk1NzRkNjhmYzBkODRjMjIKIAiGiNzM3cyU7GEQg73ijgYYswsgDDCDveKOBjgBQOsHEAMaBm1hbGl2YSIgZWI4MWVmOWY2MDQyZDQ0ZmQwM2E1NWFhN2JiZDU2Yjk"
-        },
-        {
-            "name": "__tea_cookie_tokens_1988",
-            "value": "%257B%2522web_id%2522%253A%25227050559535869920815%2522%252C%2522timestamp%2522%253A1641611327220%257D"
-        },
-        {
-            "name": "_tea_utm_cache_1988",
-            "value": "{%22utm_source%22:%22sms%22%2C%22utm_medium%22:%22ios%22%2C%22utm_campaign%22:%22client_share%22}"
-        },
-        {
-            "name": "bm_sz",
-            "value": "F71C81731C493BCEB9D74B913ED61986~YAAQW9jPF1XAMC1+AQAAAfWhNw4HrD6nszaNljE6K65qpKTFuOpFwhmesdQ1YbX63mglTNeaIX/ltOfcVjUgMwoZQ/vFKvAbYKnKgYfgpe+oJbVEGzLCsS/pelMnBKVS8Ii1PYTJCrO6bC+rqSuhffvK21t3/sHrsOlrXx6hDUms5l23s8Erp6W2B6OD1HagX+5KVl6m/MPj/GR+F53TaaHqWOPsCBgmMs7iLJTzYMf6A8XkmqXIQ7SShHLzhGV0w+gViddH+n+PFi+HeQwUr002nDQ60m0xLEhWxNbTagaQ78Q=~3753285~4277043"
-        },
-        {
-            "name": "cmpl_token",
-            "value": "AgQQAPNSF-RO0rHmvMJRpd0_-xa5-w2Tv4fZYMLi7w"
-        },
-        {
-            "name": "MONITOR_WEB_ID",
-            "value": "44c9ba4d-4b38-4449-99e5-7288e4f83cb3"
-        },
-        {
-            "name": "odin_tt",
-            "value": "ea8c924a5c23e722b20971634abe9dbf0576f50f9942e9c8c615e71f6668bd939140be6dfeddc58b9f2ed575335935f0cfd958e4ee69212a9f27e941de246ef5"
-        },
-        {
-            "name": "passport_csrf_token",
-            "value": "4e0ab0cf9b6a001eec642bf100713034"
-        },
-        {
-            "name": "passport_fe_beating_status",
-            "value": "True"
-        },
-        {
-            "name": "sessionid",
-            "value": "eb81ef9f6042d44fd03a55aa7bbd56b9"
-        },
-        {
-            "name": "sessionid_ss",
-            "value": "eb81ef9f6042d44fd03a55aa7bbd56b9"
-        },
-        {
-            "name": "sid_tt",
-            "value": "eb81ef9f6042d44fd03a55aa7bbd56b9"
-        },
-        {
-            "name": "sid_ucp_v1",
-            "value": "1.0.0-KGQ2OTNlMDRlYmZlODg4YWJmMDcxOTdhMjk1NzRkNjhmYzBkODRjMjIKIAiGiNzM3cyU7GEQg73ijgYYswsgDDCDveKOBjgBQOsHEAMaBm1hbGl2YSIgZWI4MWVmOWY2MDQyZDQ0ZmQwM2E1NWFhN2JiZDU2Yjk"
-        },
-        {
-            "name": "store-country-code",
-            "value": "us"
-        },
-        {
-            "name": "tt_csrf_token",
-            "value": "_w25qJe1gY5tqSQP8ng_1PmA"
-        },
-        {
-            "name": "tta_attr_id_mirror",
-            "value": "0.1641611479.7050667614040752130"
-        },
-        {
-            "name": "uid_tt_ss",
-            "value": "7718c854a467430e1e648b289347c363b20b476f7a1439304db9abff6886724d"
-        }
-    ]
     # Navigate to TikTok page from Selenium
     driver = get_selenium_driver()
     driver.get("https://www.tiktok.com")
@@ -316,7 +230,8 @@ def upload_to_tiktok(tiktok_video_file):
     # Get cookies and update them
     # TODO: Save the cookies to a file like pickle
     new_cookies = driver.get_cookies()
-    print(new_cookies)
+    save_tiktok_cookies(new_cookies)
+    #print(new_cookies)
 
     time.sleep(3)
 
@@ -360,4 +275,5 @@ def main(argv):
 
 if __name__ == '__main__':
 
-    main(sys.argv[1:])
+    #main(sys.argv[1:])
+    upload_to_tiktok("")
