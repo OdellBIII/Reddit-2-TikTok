@@ -18,6 +18,7 @@ Returns the subreddit name that passed through the commandline
 def get_commandline_argument(argv):
 
     subreddit = ''
+    reddit_post = ''
     try:
         opts, args = getopt.getopt(argv, "s:", ["subreddit="])
     except getopt.GetoptError:
@@ -30,7 +31,11 @@ def get_commandline_argument(argv):
 
             subreddit = arg
 
-    return subreddit
+        elif opt in ("-r", "--reddit-post"):
+
+            reddit_post = arg
+
+    return subreddit, reddit_post
 
 """
 Returns the JSON for the most popular post from a subreddit
@@ -38,6 +43,20 @@ Returns the JSON for the most popular post from a subreddit
 def get_most_popular_post(subreddit):
 
     url = "http://localhost:3000/subreddit/{}".format(subreddit)
+    print("---url---")
+    print(url)
+    response = requests.get(url)
+
+    return response.json()
+
+"""
+TODO: Returns the JSON for the reddit post
+"""
+def get_reddit_post_json(reddit_url):
+
+    url = "http://localhost:3000/subreddit/{}".format(subreddit)
+    print("---url---")
+    print(url)
     response = requests.get(url)
 
     return response.json()
@@ -71,8 +90,9 @@ def process_post_strings(popular_post):
 
     for key in popular_post.keys():
 
-        processed_string = process_string(popular_post[key])
-        popular_post[key] = processed_string
+        if popular_post[key] != None:
+            processed_string = process_string(popular_post[key])
+            popular_post[key] = processed_string
 
     return popular_post
 
@@ -133,6 +153,17 @@ def get_screenshot(processed_post):
 
     return screenshot_file_name
 
+"""
+Returns a screenshot with an animated background
+"""
+def generate_tiktok_animated_image(screenshot_file):
+
+    pixa_key = "25263112-b6025f15f3803b0cde64c695d"
+    pixa_url = "https://pixabay.com/api/videos/?key={key}&q={keyword}".format(key=pixa_key, keyword="abstract")
+
+    response = requests.get(pixa_url)
+
+    return response
 """
 Returns the screenshot with a blank background
 """
@@ -251,29 +282,28 @@ def upload_to_tiktok(tiktok_video_file):
 
 def main(argv):
 
-    subreddit = get_commandline_argument(argv)
-    popular_post = get_most_popular_post(subreddit)
-    processed_popular_post = process_post_strings(popular_post)
+    subreddit, reddit_post = get_commandline_argument(argv)
+    popular_post_json = get_most_popular_post(subreddit)
+    print(popular_post_json)
+    processed_popular_post = process_post_strings(popular_post_json)
 
     # Generate Audio files
     voiceover_audio_file = generate_audio_files(processed_popular_post)
 
     # Get Screenshot
-    screenshot_file = get_screenshot(processed_popular_post)
+    #screenshot_file = get_screenshot(processed_popular_post)
 
     # Past Screenshot to tiktok shaped image
-
-    tiktok_image = generate_tiktok_image(screenshot_file)
+    #tiktok_image = generate_tiktok_image(screenshot_file)
 
     # Combine Screenshot and Audio to create video
-
     tiktok_video_file = generate_tiktok_video(tiktok_image, voiceover_audio_file)
 
     print("TikTok video saved at the following location: {}".format(tiktok_video_file))
 
-    upload_to_tiktok(tiktok_video_file)
+    #upload_to_tiktok(tiktok_video_file)
 
 if __name__ == '__main__':
 
-    #main(sys.argv[1:])
-    upload_to_tiktok("")
+    main(sys.argv[1:])
+    #print(generate_tiktok_animated_image("").json())
