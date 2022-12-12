@@ -286,6 +286,7 @@ def main(argv):
     popular_post_json = get_most_popular_post(subreddit)
     print(popular_post_json)
     processed_popular_post = process_post_strings(popular_post_json)
+    print(processed_popular_post)
 
     # Generate Audio files
     voiceover_audio_file = generate_audio_files(processed_popular_post)
